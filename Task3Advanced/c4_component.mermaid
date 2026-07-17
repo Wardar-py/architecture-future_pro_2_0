@@ -1,0 +1,31 @@
+C4Component
+    title Компоненты — BI Query Service (портал самообслуживания)
+
+    Person(analyst, "Бизнес-аналитик")
+
+    Container_Boundary(api, "BI Query Service (Go)") {
+        Component(gateway, "API Gateway", "HTTP/gRPC", "Точка входа, rate limiting")
+        Component(authz, "AuthZ / RBAC", "OIDC + policy engine", "Проверка уровня доступа, row/column-level security")
+        Component(report_builder, "Report Builder", "Query DSL", "Конструктор отчётов по срезам")
+        Component(query_engine, "Query Orchestrator", "Trino client", "Планирование и исполнение запросов")
+        Component(cache, "Result Cache", "Redis", "Кэш агрегатов для ускорения отчётов")
+        Component(metadata_client, "Catalog Client", "OpenMetadata API", "Список доступных дата-продуктов")
+        Component(audit, "Audit Logger", "Kafka producer", "Аудит доступа к данным (комплаенс)")
+    }
+
+    ContainerDb(marts, "Доменные витрины", "ClickHouse")
+    Container(lakehouse, "Lakehouse", "Trino/Iceberg")
+    Container(catalog, "Data Catalog", "OpenMetadata")
+    System_Ext(idp, "IdP", "Keycloak")
+
+    Rel(analyst, gateway, "Запрос отчёта", "HTTPS")
+    Rel(gateway, authz, "Проверка прав")
+    Rel(authz, idp, "Валидация токена", "OIDC")
+    Rel(gateway, report_builder, "Построение запроса")
+    Rel(report_builder, metadata_client, "Доступные срезы/поля")
+    Rel(metadata_client, catalog, "Метаданные дата-продуктов")
+    Rel(report_builder, query_engine, "Скомпилированный запрос")
+    Rel(query_engine, cache, "Проверка/запись кэша")
+    Rel(query_engine, marts, "SQL-запросы")
+    Rel(query_engine, lakehouse, "Федеративные запросы")
+    Rel(authz, audit, "Событие доступа")

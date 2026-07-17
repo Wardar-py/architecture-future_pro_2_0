@@ -1,0 +1,40 @@
+C4Container
+    title Контейнеры — целевая событийная платформа «Будущее 2.0»
+
+    Person(analyst, "Бизнес-аналитик", "Домен")
+    Person(dpo, "Data Product Owner", "Домен")
+
+    System_Boundary(platform, "Платформа данных (облако)") {
+        Container(portal_ui, "Self-Service BI UI", "React", "Портал витрины данных, конструктор отчётов")
+        Container(portal_api, "BI Query Service", "Go", "API отчётов, RBAC, row-level security")
+        Container(catalog, "Data Catalog / Schema Registry", "OpenMetadata + Confluent SR", "Каталог дата-продуктов и схем событий")
+        Container(bus, "Event Backbone", "Apache Kafka", "Шина событий, топики доменов, DLQ")
+        Container(stream, "Stream Processing", "Kafka Streams / Flink", "Потоковые трансформации, витрины")
+        Container(lakehouse, "Lakehouse", "S3 + Iceberg + Trino", "Хранение и федеративные запросы")
+        ContainerDb(mart_med, "Витрина мед. домена", "ClickHouse", "Обезличенные операционные метрики (без ЭМК)")
+        ContainerDb(mart_fin, "Витрина финтех-домена", "ClickHouse", "Финансовые показатели")
+        Container(acl, "Anti-Corruption Layer", "Go/Debezium", "CDC из DWH, адаптация legacy-контрактов")
+    }
+
+    System_Ext(dwh, "DWH (SQL Server 2008)", "Legacy, мост совместимости")
+    System_Ext(camel, "Camel ESB", "Legacy интеграции")
+    System_Ext(idp, "IdP / SSO", "Keycloak, OIDC")
+
+    Rel(analyst, portal_ui, "Строит отчёты", "HTTPS")
+    Rel(portal_ui, portal_api, "Запросы", "HTTPS/JSON")
+    Rel(portal_api, idp, "Аутентификация/авторизация", "OIDC")
+    Rel(portal_api, lakehouse, "Федеративные запросы", "Trino SQL")
+    Rel(portal_api, mart_med, "Чтение метрик")
+    Rel(portal_api, mart_fin, "Чтение метрик")
+
+    Rel(dpo, catalog, "Регистрирует дата-продукты")
+    Rel(bus, catalog, "Проверка схем", "Schema validation")
+
+    Rel(stream, bus, "Подписка/публикация", "Kafka protocol")
+    Rel(stream, mart_med, "Материализация витрин")
+    Rel(stream, mart_fin, "Материализация витрин")
+    Rel(stream, lakehouse, "Запись в Iceberg")
+
+    Rel(acl, dwh, "CDC / выгрузка", "JDBC/Debezium")
+    Rel(acl, bus, "Публикует нормализованные события")
+    Rel(camel, bus, "Мост legacy-интеграций")

@@ -1,0 +1,55 @@
+stages:
+  - validate
+  - plan
+  - apply
+
+variables:
+  TF_VERSION: "1.9.5"
+  TF_ROOT: "${CI_PROJECT_DIR}/Task2Advanced"
+  AWS_ACCESS_KEY_ID: "${TF_STATE_ACCESS_KEY}"
+  AWS_SECRET_ACCESS_KEY: "${TF_STATE_SECRET_KEY}"
+  TF_VAR_environment: "dev"
+
+image:
+  name: hashicorp/terraform:${TF_VERSION}
+  entrypoint: [""]
+
+cache:
+  key: "${CI_COMMIT_REF_SLUG}"
+  paths:
+    - ${TF_ROOT}/.terraform
+
+before_script:
+  - cd "${TF_ROOT}"
+  - terraform init -backend-config=backend.dev.hcl
+
+validate:
+  stage: validate
+  script:
+    - terraform fmt -check -recursive
+    - terraform validate
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+plan:
+  stage: plan
+  script:
+    - terraform plan -var-file=dev.tfvars -out=tfplan
+  artifacts:
+    paths:
+      - ${TF_ROOT}/tfplan
+    expire_in: 1 week
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+apply:
+  stage: apply
+  script:
+    - terraform apply -auto-approve tfplan
+  dependencies:
+    - plan
+  when: manual
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'

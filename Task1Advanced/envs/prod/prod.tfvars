@@ -1,0 +1,6 @@
+cloud_id       = "b1gxxxxxxxxxxxxxxxxx"
+folder_id      = "b1gpppppppppppppppp"
+zone           = "ru-central1-a"
+subnet_id      = "e9bpppppppppppppppp"
+boot_image_id  = "Ubuntu 22.04 LTS"
+ssh_public_key = "ssh-ed25519 AAAA...replace-me... ops@future20"
