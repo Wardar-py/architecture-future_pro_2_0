@@ -1,0 +1,51 @@
+flowchart LR
+    classDef event fill:#ffb84d,stroke:#cc7a00,color:#000
+    classDef policy fill:#9be89b,stroke:#3c9c3c,color:#000
+    classDef ctx fill:#cfe2ff,stroke:#2f6fb3,color:#000
+
+    subgraph PatientFlow["Patient Flow"]
+        E1["Зарегистрирован новый пациент"]:::event
+        E2["Назначен приём"]:::event
+        E3["Проведён приём"]:::event
+    end
+
+    subgraph AIDx["AI Diagnostics"]
+        E4["Загружено исследование"]:::event
+        E5["Пройдено исследование ИИ"]:::event
+    end
+
+    subgraph Lending["Lending"]
+        E6["Подана заявка на кредит"]:::event
+        E7["Создан кредитный договор"]:::event
+        E8["Кредит погашен"]:::event
+    end
+
+    subgraph Accounts["Accounts & Payments"]
+        E9["Открыт счёт"]:::event
+        E10["Проведена транзакция"]:::event
+    end
+
+    subgraph BI["Self-Service BI"]
+        P1["Обновить дата-продукт домена"]:::policy
+        P2["Пересчитать витрину near-real-time"]:::policy
+    end
+
+    subgraph Notif["Notifications"]
+        P3["Уведомить клиента"]:::policy
+    end
+
+    E1 --> E2 --> E3
+    E3 --> E4 --> E5
+    E5 -->|"заключение"| E3
+    E6 -->|"скоринг"| E7 --> E8
+    E9 --> E10
+    E7 --> E10
+
+    E1 --> P1
+    E3 --> P1
+    E5 --> P1
+    E7 --> P2
+    E10 --> P2
+    E7 --> P3
+    E5 --> P3
+    E8 --> P3

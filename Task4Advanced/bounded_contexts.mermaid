@@ -1,0 +1,33 @@
+flowchart TB
+    subgraph Core["Основные домены (Core)"]
+        PAT["Пациентский поток\n(Patient Flow)"]
+        AI["ИИ-диагностика\n(AI Diagnostics)"]
+        LEND["Кредитование\n(Lending)"]
+        ACC["Счета и платежи\n(Accounts & Payments)"]
+    end
+
+    subgraph Supporting["Поддерживающие домены"]
+        CLIN["Управление клиниками\n(Clinic Operations)"]
+        HR["Персонал\n(Staffing/HR)"]
+        INV["Инвентаризация\n(Inventory)"]
+    end
+
+    subgraph Generic["Общие домены (Generic)"]
+        IAM["Идентификация и доступ\n(IAM)"]
+        BILL["Биллинг\n(Billing)"]
+        NOTIF["Уведомления\n(Notifications)"]
+    end
+
+    subgraph Analytics["Аналитический домен"]
+        BI["Витрина данных\n(Self-Service BI)"]
+    end
+
+    PAT -->|"события пациентов"| AI
+    AI -->|"результаты исследований"| PAT
+    LEND -->|"запрос скоринга"| ACC
+    ACC -->|"движение средств"| BILL
+    PAT -->|"обезличенные метрики"| BI
+    LEND -->|"фин. показатели"| BI
+    ACC -->|"фин. показатели"| BI
+    CLIN -->|"операционные метрики"| BI
+    IAM -.->|"контекст доступа"| BI

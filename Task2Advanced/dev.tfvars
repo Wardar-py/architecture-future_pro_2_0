@@ -1,0 +1,9 @@
+cloud_id       = "b1gxxxxxxxxxxxxxxxxx"
+folder_id      = "b1gyyyyyyyyyyyyyyyyy"
+zone           = "ru-central1-a"
+environment    = "dev"
+subnet_id      = "e9bxxxxxxxxxxxxxxxxx"
+boot_image_id  = "fd8xxxxxxxxxxxxxxxxx"
+ssh_public_key = "ssh-ed25519 AAAA...replace-me... ops@future20"
+cores          = 2
+memory         = 4
